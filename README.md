@@ -4,6 +4,32 @@ A Trello-style Kanban board: JWT auth, role-based board/task permissions, drag-a
 
 **Stack:** React + Vite (client) · Express + Mongoose + Socket.io (server) · MongoDB · Redis (optional) · Cloudinary
 
+## Features
+
+**Auth & access control**
+- JWT authentication with bcrypt-hashed passwords
+- Board-level roles (Owner / Admin / Viewer) plus a visibility tier per board (Private / Shared / Public)
+- Per-task sharing: invite a specific registered user to one task as a Viewer (read-only) or Editor (can edit just that task, enforced server-side even for users with no board-wide access)
+
+**Data integrity**
+- Optimistic concurrency control on tasks - the client's version is checked against the stored version before every edit, returning a 409 Conflict instead of silently overwriting someone else's concurrent change
+- Board-scope validation on every list/task write (prevents editing a task/list by ID unless it actually belongs to the board being acted on)
+
+**Real-time collaboration**
+- Socket.io WebSocket sync - task, list, and board changes broadcast instantly to everyone viewing that board
+- Redis adapter for horizontal scaling across multiple server instances, with automatic fallback to single-instance mode when Redis isn't configured
+- Live presence ("who's viewing this board") via a heartbeat/timeout mechanism that drops stale connections
+
+**Kanban UI**
+- Drag-and-drop task cards between lists and reordering of lists (`@dnd-kit`)
+- Board dashboard, list/task CRUD, and a task detail modal, all backed by React Query for caching and optimistic UI updates
+
+**File attachments**
+- Multer + Cloudinary - uploaded files are streamed straight to cloud storage (never written to local disk), with type/size validation
+
+**Onboarding**
+- New accounts are auto-seeded with a starter board and sample tasks instead of an empty dashboard
+
 ## Project structure
 
 ```
